@@ -1,0 +1,23 @@
+{% extends "blog/base.html" %}
+{% load widget_tweaks %}
+
+{% block content %}
+    <div class="flex justify-center items-center rounded-2xl border border-gray-100 shadow-2xl">
+        <div class="flex-1 p-5">
+            <h2 class="text-3xl font-bold">{% if form.instance.pk %}Edit{% else %}Create{% endif %} Post</h2>
+
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                {{ form.non_field_errors }}
+                {% for field in form %}
+                    <div class="mb-2">
+                        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        {{ field|add_class:"border p-2 rounded w-full" }}
+                        {{ field.errors }}
+                    </div>
+                {% endfor %}
+                <button type="submit" class="bg-green-600 text-white py-2 px-4 rounded">Submit</button>
+            </form>
+        </div>
+    </div>
+{% endblock %}

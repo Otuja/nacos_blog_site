@@ -1,0 +1,56 @@
+{% extends "blog/base.html" %}
+
+<title>{% block title %} {{ post.title }} {% endblock %}</title>
+
+{% block content %}
+    <div class="flex-1 space-y-5 md:space-y-10">
+        <div class="flex-1 space-y-2">
+            <!-- {% if post.image %}
+                <img src="{{ post.image.url }}" alt="{{ post.title }}" class="w-full h-52 object-cover">
+            {% endif %} -->
+            <h1 class="text-3xl font-bold">{{ post.title }}</h1> 
+              
+            {% if request.user == post.author %}
+                <div class="flex space-x-2 mt-4">
+                    <a href="{% url 'blog:post_edit' post.pk %}" class="btn btn-outline btn-success">Edit</a>
+                    <a href="{% url 'blog:post_delete' post.pk %}" class="btn btn-outline btn-warning">Delete</a>
+                </div>
+            {% endif %}
+
+            <p class="text-sm text-gray-700">Published {{ post.publish }} by {{ post.author }}</p>
+    
+            <p class="text-gray-800"> {{ post.body|linebreaks }}</p>
+        </div>
+    
+        <div>
+            <a href="{% url 'blog:post_share' post.id %}" class="py-2 px-3 text-xl font-bold text-white cursor-pointer rounded-sm bg-green-600">Share this post</a>
+        </div>
+
+        <div class="flex flex-col space-y-2">
+            <h2 class="text-2xl font-bold">Similar Posts</h2>
+            {% for post in similar_post %}
+                <p class="underline text-blue-600"><a href="{{ post.get_absolute_url }}">{{ post.title }}</a></p>
+            {% empty %}
+                <p>There is no similar posts yet</p>
+            {% endfor %}
+        </div>
+
+        <!-- comments  -->
+        <div class="flex flex-col space-y-2">
+            {% with comments.count as total_comments %}
+                <h2 class="text-2xl font-bold">{{ total_comments }} Comment{{ total_comments|pluralize }}</h2>
+            {% endwith %}
+
+            {% for comment in comments %}
+                <div class="">
+                    <p class="text-sm text-gray-700">Comment {{ forloop.counter }} by {{ comment.name }} {{ comment.created }}</p>
+                    <p class="text-gray-800">{{ comment.body|linebreaks}}</p>
+                </div>
+            {% empty %}
+                <p class="font-semibold">There are no comments.</p>
+            {% endfor %}
+        </div>
+
+        {% include 'blog/post/includes/comment_form.html' %}
+    </div>
+{% endblock %}

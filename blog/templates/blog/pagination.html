@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css" />
+</head>
+<body>
+
+    <div class="flex item-center justify-center">
+        <div class="flex gap-4">
+            {% if page.has_previous %}
+                <a href="?page={{ page.previous_page_number }}" class="btn btn-dash">Previous</a>
+            {% endif %}
+
+            <span class="btn btn-soft btn-dash"> Page {{ page.number }} </span>
+
+            {% if page.has_next %}
+                <a href="?page={{ page.next_page_number }}" class="btn btn-dash">Next</a>
+            {% endif %}
+        </div>
+
+    </div>
+</body>
+</html>

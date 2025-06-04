@@ -1,0 +1,67 @@
+{% extends 'blog/base.html' %}
+{% load widget_tweaks %}
+
+{% block content %}
+    <div class="flex justify-center items-center rounded-2xl border border-gray-100 shadow-2xl">
+        <div class="flex-1 p-5">
+            {% if sent %}
+                <h1>E-mail sucessfully sent </h1>
+                <P>'{{ post.title }}' was successfully sent to {{ form.cleaned_data.to }}.</P>
+            {% else %}
+    
+                <h1 class="font-semibold">Share <span class="text-blue-600 underline">'{{ post.title }}'</span> by e-mail</h1>
+                <form method="post">
+                    {% csrf_token %}
+                        <div class="flex flex-col space-y-2">
+                            <div>
+                                <label for="{{ form.name.id_for_label }}">Name:</label>
+                                {{ form.name|add_class:"border p-2 rounded w-full" }}
+                            </div>
+                            <div>
+                                <label for="{{ form.email.id_for_label }}">Email:</label>
+                                {{ form.email|add_class:"border p-2 rounded w-full" }}
+                            </div>
+                            <div>
+                                <label for="{{ form.body.id_for_label }}">To:</label>
+                                {{ form.to|add_class:"border p-2 rounded w-full" }}
+                            </div>
+                            <div>
+                                <label for="{{ form.body.id_for_label }}">Comment:</label>
+                                {{ form.comments|add_class:"border p-2 rounded w-full" }}
+                            </div>
+                        </div>
+                    <button type="submit" class="bg-green-600 text-white py-2 px-4 mt-2 rounded">Send</button>
+                </form>
+    
+                <div class="mt-4">
+                    <label for="copy-link" class="font-bold">Copy Link:</label>
+                    <div class="flex items-center space-x-2">
+                        <input id="copy-link" type="text" value="{{ post_url }}" class="border p-2 rounded w-full" readonly>
+                        <button onclick="copyToClipboard()" class="bg-gray-200 p-2 rounded hover:bg-gray-300" title="Copy to clipboard">
+                        <i class="ri-file-copy-line text-xl"></i>
+                        </button>
+                    </div>
+                    <p id="copy-message" class="text-green-600 text-sm mt-1 hidden">Link copied!</p>
+                </div>
+
+                <div>
+                    <p class="font-bold">Or share it on:</p>
+                    <div class="flex gap-1">
+                        <a href="https://www.facebook.com/sharer/sharer.php?u={{ post_url|urlencode }}" target="_blank">
+                        <i class="ri-facebook-circle-fill text-3xl text-blue-600"></i>
+                        </a>
+
+                        <a href="https://twitter.com/intent/tweet?url={{ post_url|urlencode }}" target="_blank">
+                        <i class="ri-twitter-x-line text-3xl"></i>
+                        </a>
+
+                        <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ post_url|urlencode }}" target="_blank">
+                        <i class="ri-linkedin-box-fill text-3xl text-blue-600"></i>
+                        </a>
+                    </div>
+                </div>
+    
+            {% endif %}
+        </div>    
+    </div>
+{% endblock %}
