@@ -8,6 +8,7 @@ urlpatterns = [
     path('tag/<slug:tag_slug>/', views.post_list, name='post_list_by_tag'),
     path('<int:post_id>/share/', views.post_share, name='post_share'),
     path('<int:id>/<slug:post>/', views.post_detail, name='post_detail'),
+    path('subscribe/', views.subscribe_view, name='subscribe'),
 
     path('login/', views.login_view, name='login_view'),
     path('signup/', views.signup_view, name='signup_view'),

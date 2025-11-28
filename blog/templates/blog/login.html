@@ -3,36 +3,102 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <script src="https://cdn.tailwindcss.com"></script>
-    <title>Login</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <title>Login - NACOS Blog</title>
     {% load widget_tweaks %}
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
 </head>
 
-<body class="min-h-screen flex justify-center items-center bg-gray-100">
-    <div class="w-full max-w-md p-6 bg-white rounded-xl shadow-xl mx-3">
+<body class="min-h-screen flex justify-center items-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-md w-full space-y-8 bg-white p-10 rounded-2xl shadow-xl border border-gray-100">
+        <div class="text-center">
+            <a href="{% url 'blog:post_list' %}" class="flex items-center justify-center gap-2 mb-6 group">
+                <div class="w-10 h-10 bg-green-600 rounded-lg flex items-center justify-center text-white font-bold text-xl shadow-md group-hover:scale-105 transition-transform">
+                    N
+                </div>
+                <span class="text-2xl font-bold tracking-tight text-gray-900">NACOS<span class="text-green-600">BLOG</span></span>
+            </a>
+            <h2 class="mt-6 text-3xl font-extrabold text-gray-900">Welcome back</h2>
+            <p class="mt-2 text-sm text-gray-600">
+                Sign in to your account to continue
+            </p>
+        </div>
+
         {% if messages %}
             {% for message in messages %}
-                <div class="bg-green-200 text-green-500 px-4 py-3 rounded mb-4">
-                    {{ message }}
+                <div class="rounded-md bg-red-50 p-4 border border-red-200">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <i class="ri-error-warning-fill text-red-400"></i>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm font-medium text-red-800">{{ message }}</p>
+                        </div>
+                    </div>
                 </div>
             {% endfor %}
         {% endif %}
-        <h1 class="text-2xl font-semibold mb-4"><a href="{% url 'blog:post_list' %}">NACOSBLOG</a></h1>
-        <form method="post">
+
+        <form class="mt-8 space-y-6" method="post">
             {% csrf_token %}
-            <div class="mb-4">
-                <label for="{{ form.username.id_for_label }}" class="block mb-1">Username:</label>
-                {{ form.username|add_class:"border border-gray-300 p-2 rounded w-full" }}
+            <div class="rounded-md shadow-sm -space-y-px">
+                <div class="mb-4">
+                    <label for="{{ form.username.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Username</label>
+                    {{ form.username|add_class:"appearance-none rounded-lg relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 sm:text-sm transition-colors" }}
+                </div>
+                <div>
+                    <label for="{{ form.password.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                    {{ form.password|add_class:"appearance-none rounded-lg relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 sm:text-sm transition-colors" }}
+                </div>
             </div>
-            <div class="mb-4">
-                <label for="{{ form.password.id_for_label }}" class="block mb-1">Password:</label>
-                {{ form.password|add_class:"border border-gray-300 p-2 rounded w-full" }}
+
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <input id="remember-me" name="remember-me" type="checkbox" class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded">
+                    <label for="remember-me" class="ml-2 block text-sm text-gray-900">
+                        Remember me
+                    </label>
+                </div>
+
+                <div class="text-sm">
+                    <a href="#" class="font-medium text-green-600 hover:text-green-500">
+                        Forgot your password?
+                    </a>
+                </div>
             </div>
-            <button type="submit" class="bg-green-600 text-white py-2 px-4 rounded w-full cursor-pointer">Login</button>
+
+            <div>
+                <button type="submit" class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-xl text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all shadow-lg shadow-green-600/30 hover:shadow-green-600/40">
+                    <span class="absolute left-0 inset-y-0 flex items-center pl-3">
+                        <i class="ri-lock-line text-green-500 group-hover:text-green-400 transition-colors"></i>
+                    </span>
+                    Sign in
+                </button>
+            </div>
         </form>
 
-        <hr class="my-4">
-        <p class="flex justify-center text-sm gap-1">Create an account?  <a href="{% url 'blog:signup_view' %}" class="underline text-blue-400">Signup</a></p>
+        <div class="mt-6">
+            <div class="relative">
+                <div class="absolute inset-0 flex items-center">
+                    <div class="w-full border-t border-gray-300"></div>
+                </div>
+                <div class="relative flex justify-center text-sm">
+                    <span class="px-2 bg-white text-gray-500">
+                        Don't have an account?
+                    </span>
+                </div>
+            </div>
+
+            <div class="mt-6 grid grid-cols-1 gap-3">
+                <a href="{% url 'blog:signup_view' %}" class="w-full flex items-center justify-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-xl text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                    Create an account
+                </a>
+            </div>
+        </div>
     </div>
 </body>
 </html>

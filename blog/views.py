@@ -1,13 +1,13 @@
 from django.shortcuts import render, get_object_or_404
 
 # Create your views here.
-from .models import Post
+from .models import Post, Subscriber
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
-from .forms import EmailPostForm, CommentForm, LoginForm, SignupForm
+from .forms import EmailPostForm, CommentForm, LoginForm, SignupForm, SubscribeForm
 from django.core.mail import send_mail
 from django.contrib.auth.decorators import login_required
 from taggit.models import Tag
-from django.db.models import Count
+from django.db.models import Count, Q
 
 from django.contrib import messages
 from django.shortcuts import redirect
@@ -30,14 +30,29 @@ from django.urls import reverse_lazy
 
 # view for list page
 def post_list(request, tag_slug=None):
-    '''list views with paginator to navigate the site'''
+    """
+    Displays a list of published blog posts.
+    
+    Supports pagination, filtering by tags, and search.
+    
+    Args:
+        request: The HTTP request object.
+        tag_slug (str, optional): The slug of the tag to filter by.
+    """
     post_list = Post.published.all()
     tag = None
+    query = request.GET.get('q')
+
     if tag_slug:
         tag = get_object_or_404(Tag, slug=tag_slug)
         post_list = post_list.filter(tags__in=[tag])
 
-    # paginatin with 2 posts per page
+    if query:
+        post_list = post_list.filter(
+            Q(title__icontains=query) | Q(body__icontains=query)
+        )
+
+    # paginatin with 4 posts per page
     paginator = Paginator(post_list, 4)
     page_number = request.GET.get('page', 1) #the int 1 loads the first page if requested page is not available
     try:
@@ -46,12 +61,47 @@ def post_list(request, tag_slug=None):
         posts = paginator.page(1)
     except EmptyPage:
         posts = paginator.page(paginator.num_pages)
+    
+    subscribe_form = SubscribeForm()
 
-    return render(request, 'blog/post/list.html', {'posts': posts, 'tag': tag})
+    return render(request, 'blog/post/list.html', {
+        'posts': posts, 
+        'tag': tag, 
+        'query': query,
+        'subscribe_form': subscribe_form
+    })
+
+
+def subscribe_view(request):
+    """
+    Handles newsletter subscription.
+    """
+    if request.method == 'POST':
+        form = SubscribeForm(request.POST)
+        if form.is_valid():
+            email = form.cleaned_data['email']
+            if not Subscriber.objects.filter(email=email).exists():
+                Subscriber.objects.create(email=email)
+                messages.success(request, "Thank you for subscribing!")
+            else:
+                messages.info(request, "You are already subscribed.")
+        else:
+            messages.error(request, "Invalid email address.")
+    return redirect('blog:post_list')
 
 
 # view for detail and rendering comment 
 def post_detail(request, id, post):
+    """
+    Displays a single blog post and its comments.
+    
+    Handles comment submission and displays similar posts.
+    
+    Args:
+        request: The HTTP request object.
+        id (int): The ID of the post.
+        post (str): The slug of the post.
+    """
     post = get_object_or_404(Post, id=id, status=Post.Status.PUBLISHED, slug=post)
     comments = post.comments.filter(active=True)
     comment = None
@@ -82,6 +132,13 @@ def post_detail(request, id, post):
 
 
 def post_share(request, post_id):
+    """
+    Allows users to share a post via email.
+    
+    Args:
+        request: The HTTP request object.
+        post_id (int): The ID of the post to share.
+    """
     # retrieve post by id
     post = get_object_or_404(Post, id=post_id, status=Post.Status.PUBLISHED)
     post_url = request.build_absolute_uri(post.get_absolute_url()) #building the absolute url for domain
@@ -105,8 +162,12 @@ def post_share(request, post_id):
         form = EmailPostForm()
     return render(request, 'blog/post/share.html', {'post': post, 'form':form, 'sent': sent, 'post_url': post_url,}) 
 
+
 # login view 
 def login_view(request):
+    """
+    Handles user login.
+    """
     if request.method == 'POST':
         form = LoginForm(request.POST)
         if form.is_valid():
@@ -129,6 +190,9 @@ def login_view(request):
 
 # signup view 
 def signup_view(request):
+    """
+    Handles user registration.
+    """
     if request.method == 'POST':
         form = SignupForm(request.POST)
         if form.is_valid():
@@ -158,12 +222,19 @@ def signup_view(request):
 # view for authors blog
 @login_required
 def profile_view(request):
+    """
+    Displays the logged-in user's profile and their posts.
+    """
     user_posts = Post.objects.filter(author=request.user)
     return render(request, 'blog/post/profile.html', {'user_posts': user_posts})
 
 
 # create with django built in view 
 class PostCreateView(LoginRequiredMixin, CreateView):
+    """
+    View for creating a new blog post.
+    Requires login.
+    """
     model = Post
     fields = ['title', 'body', 'image', 'status', 'tags']
     template_name = 'blog/post/post_form.html'
@@ -176,6 +247,10 @@ class PostCreateView(LoginRequiredMixin, CreateView):
 
 
 class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    """
+    View for updating an existing blog post.
+    Requires login and author permission.
+    """
     model = Post
     fields = ['title', 'body', 'image', 'status']
     template_name = 'blog/post/post_form.html'
@@ -186,6 +261,10 @@ class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 
 
 class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    """
+    View for deleting a blog post.
+    Requires login and author permission.
+    """
     model = Post
     template_name = 'blog/post/post_confirm_delete.html'
     success_url = reverse_lazy('blog:post_list')

@@ -1,121 +1,407 @@
 {% load static %}
-
-
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css" />
     <link href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" rel="stylesheet"/>
-    <title>{% block title %} {% endblock %}</title>
+    
+    <!-- Google Fonts: Inter & Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+    <title>{% block title %}NACOS Blog{% endblock %}</title>
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        h1, h2, h3, h4, h5, h6, .font-heading {
+            font-family: 'Outfit', sans-serif;
+        }
+        
+        /* Glassmorphism */
+        .glass-nav {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+
+        /* Animations */
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .animate-float {
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        .animate-slide-in-right {
+            animation: slideInRight 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        
+        .animate-fade-in-up {
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8; 
+        }
+
+        /* Navigation Link Hover Effect */
+        .nav-link {
+            position: relative;
+        }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -4px;
+            left: 0;
+            background: linear-gradient(to right, #10b981, #3b82f6);
+            transition: width 0.3s ease;
+            border-radius: 2px;
+        }
+        .nav-link:hover::after {
+            width: 100%;
+        }
+    </style>
 
     {% load django_browser_reload %}
     {% django_browser_reload_script %}
 
 </head>
-<body>
-    
+<body class="bg-gray-50 text-gray-800 flex flex-col min-h-screen selection:bg-green-100 selection:text-green-900">
 
-    <div class="navbar bg-base-100 shadow-sm">
-        <div class="flex-1">
-            <a href="{% url 'blog:post_list' %}" class="py-2 px-3 text-xl font-bold text-white cursor-pointer rounded-sm bg-green-600">NACOSBLOG</a>
-        </div>
-        <div class="flex gap-2">
-            <div class="dropdown dropdown-end">
-            <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar">
-                <div class="w-10 rounded-full">
-                <img
-                    alt="Tailwind CSS Navbar component"
-                    src="/media/images/blog/avatar.jpeg" />
+    <!-- Navbar -->
+    <nav class="glass-nav sticky top-0 z-50 transition-all duration-300 shadow-sm" id="navbar">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-20 items-center">
+                <!-- Logo Section -->
+                <div class="flex-shrink-0 flex items-center">
+                    <a href="{% url 'blog:post_list' %}" class="flex items-center gap-3 group">
+                        <div class="relative w-10 h-10">
+                            <div class="absolute inset-0 bg-gradient-to-tr from-green-500 to-blue-500 rounded-xl rotate-6 group-hover:rotate-12 transition-transform duration-300 opacity-80"></div>
+                            <div class="absolute inset-0 bg-white rounded-xl flex items-center justify-center shadow-sm border border-gray-100 group-hover:-translate-y-1 transition-transform duration-300">
+                                <span class="font-heading font-bold text-xl text-transparent bg-clip-text bg-gradient-to-r from-green-600 to-blue-600">N</span>
+                            </div>
+                        </div>
+                        <div class="flex flex-col">
+                            <span class="font-heading text-xl font-bold tracking-tight text-gray-900 leading-none">NACOS<span class="text-green-600">BLOG</span></span>
+                            <span class="text-[10px] font-medium text-gray-500 tracking-widest uppercase">Student Community</span>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Desktop Navigation Links -->
+                <div class="hidden md:flex items-center space-x-8">
+                    <!-- Home link removed as per request -->
+                </div>
+
+                <!-- User Actions -->
+                <div class="hidden md:flex items-center gap-4">
+                    {% if request.user.is_authenticated %}
+                        <a href="{% url 'blog:post_create' %}" class="group relative px-5 py-2.5 bg-gray-900 text-white text-sm font-medium rounded-full hover:bg-gray-800 transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 overflow-hidden">
+                            <div class="absolute inset-0 bg-gradient-to-r from-green-500 to-blue-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                            <span class="relative flex items-center gap-2">
+                                <i class="ri-edit-box-line"></i> Write
+                            </span>
+                        </a>
+                        
+                        <div class="relative group" id="user-menu-container">
+                            <button class="flex items-center gap-2 pl-2 pr-1 py-1 rounded-full hover:bg-gray-100 transition-colors border border-transparent hover:border-gray-200 focus:outline-none">
+                                <div class="w-9 h-9 rounded-full bg-gradient-to-br from-green-400 to-blue-500 p-[2px]">
+                                    <div class="w-full h-full rounded-full bg-white flex items-center justify-center overflow-hidden">
+                                        <span class="font-heading font-bold text-sm text-gray-700">{{ request.user.username|make_list|first|upper }}</span>
+                                    </div>
+                                </div>
+                                <i class="ri-arrow-down-s-line text-gray-400 group-hover:text-gray-600"></i>
+                            </button>
+                            
+                            <!-- Dropdown Menu -->
+                            <div class="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-100 py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform origin-top-right z-50">
+                                <div class="px-4 py-2 border-b border-gray-50 mb-1">
+                                    <p class="text-xs text-gray-500">Signed in as</p>
+                                    <p class="text-sm font-bold text-gray-900 truncate">{{ request.user.username }}</p>
+                                </div>
+                                <a href="{% url 'blog:profile' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-green-600 transition-colors">
+                                    <i class="ri-user-line mr-2"></i> Profile
+                                </a>
+                                <form action="{% url 'admin:logout' %}" method="post" class="block w-full">
+                                    {% csrf_token %}
+                                    <button type="submit" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors">
+                                        <i class="ri-logout-box-line mr-2"></i> Logout
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    {% else %}
+                        <a href="{% url 'blog:login_view' %}" class="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors px-4 py-2">Log in</a>
+                        <a href="{% url 'blog:signup_view' %}" class="px-5 py-2.5 bg-gradient-to-r from-green-600 to-green-500 text-white text-sm font-medium rounded-full hover:shadow-lg hover:shadow-green-500/30 hover:-translate-y-0.5 transition-all duration-300">Sign up</a>
+                    {% endif %}
+                </div>
+
+                <!-- Mobile Menu Button -->
+                <div class="flex items-center md:hidden">
+                    <button id="mobile-menu-btn" class="p-2 rounded-lg text-gray-600 hover:bg-gray-100 hover:text-gray-900 focus:outline-none transition-colors">
+                        <i class="ri-menu-4-line text-2xl"></i>
+                    </button>
                 </div>
             </div>
-            <ul tabindex="0" class="menu menu-sm dropdown-content bg-base-100 rounded-box z-1 mt-3 w-52 p-2 shadow">
+        </div>
+    </nav>
 
-                {% if user.is_authenticated %}
-                    <li>
-                    <a href="{% url 'blog:profile' %}" class="justify-between">
-                        Profile
-                        <span class="badge">New</span>
-                    </a>
-                    </li>
-                    <li><a href="{% url 'blog:post_create' %}">Add</a></li>
-                    <li>
-                        <form method="post" action="{% url 'logout' %}">
-                            {% csrf_token %}
-                            <button type="submit" class="">Logout</button>
-                        </form>
-                    </li>
-                {% else %}
-                    <li><a href="{% url 'blog:login_view' %}">Login</a></li>
-                    <li><a href="{% url 'blog:signup_view' %}">Signup</a></li>
-                {% endif %}
-            </ul>
+    <!-- Mobile Menu Overlay -->
+    <div id="mobile-menu-overlay" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden opacity-0 transition-opacity duration-300"></div>
+    
+    <!-- Mobile Menu Sidebar -->
+    <div id="mobile-menu" class="fixed inset-y-0 right-0 w-80 bg-white shadow-2xl z-50 transform translate-x-full transition-transform duration-300 ease-in-out flex flex-col">
+        <div class="p-6 border-b border-gray-100 flex justify-between items-center">
+            <span class="font-heading text-xl font-bold text-gray-900">Menu</span>
+            <button id="close-mobile-menu" class="p-2 rounded-full hover:bg-gray-100 text-gray-500 hover:text-gray-900 transition-colors">
+                <i class="ri-close-line text-2xl"></i>
+            </button>
+        </div>
+        
+        <div class="flex-1 overflow-y-auto py-6 px-6 space-y-6">
+            <div class="space-y-2">
+                <a href="{% url 'blog:post_list' %}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 hover:bg-green-50 hover:text-green-700 transition-colors font-medium">
+                    <i class="ri-home-4-line text-xl"></i> Home
+                </a>
+            </div>
+
+                <div class="border-t border-gray-100 pt-6">
+                    {% if request.user.is_authenticated %}
+                        <div class="flex items-center gap-3 mb-6 px-4">
+                            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-green-400 to-blue-500 p-[2px]">
+                                <div class="w-full h-full rounded-full bg-white flex items-center justify-center overflow-hidden">
+                                    <span class="font-heading font-bold text-gray-700">{{ request.user.username|make_list|first|upper }}</span>
+                                </div>
+                            </div>
+                            <div>
+                                <p class="font-bold text-gray-900">{{ request.user.username }}</p>
+                                <p class="text-xs text-gray-500">Logged in</p>
+                            </div>
+                        </div>
+                        <div class="space-y-2">
+                            <a href="{% url 'blog:post_create' %}" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-gray-900 text-white hover:bg-gray-800 transition-colors font-medium shadow-md">
+                                <i class="ri-edit-box-line"></i> Write a Post
+                            </a>
+                            <a href="{% url 'blog:profile' %}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 hover:bg-gray-50 hover:text-green-700 transition-colors font-medium">
+                                <i class="ri-user-line"></i> Profile
+                            </a>
+                            <form action="{% url 'admin:logout' %}" method="post" class="block w-full">
+                                {% csrf_token %}
+                                <button type="submit" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-red-600 hover:bg-red-50 transition-colors font-medium">
+                                    <i class="ri-logout-box-line"></i> Logout
+                                </button>
+                            </form>
+                        </div>
+                    {% else %}
+                        <div class="grid grid-cols-2 gap-4">
+                            <a href="{% url 'blog:login_view' %}" class="flex justify-center items-center px-4 py-3 rounded-xl border border-gray-200 text-gray-700 hover:bg-gray-50 font-medium transition-colors">
+                                Log in
+                            </a>
+                            <a href="{% url 'blog:signup_view' %}" class="flex justify-center items-center px-4 py-3 rounded-xl bg-green-600 text-white hover:bg-green-700 font-medium transition-colors shadow-lg shadow-green-600/20">
+                                Sign up
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
             </div>
         </div>
-    </div>
-   
-    <div class="container mx-auto p-4 lg:p-8">
-        <!-- {% if messages %}
-            <div class="alert alert-info">
-                {% for message in messages %}
-                    <p>{{ message }}</p>
-                {% endfor %}
-            </div>
-        {% endif %} -->
+    </nav>
 
+    <!-- Toast Notifications -->
+    {% if messages %}
+        <div class="fixed top-24 right-5 z-50 flex flex-col gap-3 pointer-events-none">
+            {% for message in messages %}
+                <div class="pointer-events-auto flex items-center w-full max-w-sm p-4 bg-white rounded-2xl shadow-2xl border border-gray-100 animate-slide-in-right overflow-hidden relative group">
+                    <div class="absolute left-0 top-0 bottom-0 w-1 {% if message.tags == 'success' %}bg-green-500{% elif message.tags == 'error' %}bg-red-500{% else %}bg-blue-500{% endif %}"></div>
+                    <div class="inline-flex items-center justify-center flex-shrink-0 w-10 h-10 rounded-full {% if message.tags == 'success' %}bg-green-100 text-green-600{% elif message.tags == 'error' %}bg-red-100 text-red-600{% else %}bg-blue-100 text-blue-600{% endif %}">
+                        {% if message.tags == 'success' %}
+                            <i class="ri-checkbox-circle-fill text-xl"></i>
+                        {% elif message.tags == 'error' %}
+                            <i class="ri-error-warning-fill text-xl"></i>
+                        {% else %}
+                            <i class="ri-information-fill text-xl"></i>
+                        {% endif %}
+                    </div>
+                    <div class="ml-4 mr-2">
+                        <p class="text-sm font-medium text-gray-900">{{ message }}</p>
+                    </div>
+                    <button type="button" class="ml-auto -mx-1.5 -my-1.5 bg-white text-gray-400 hover:text-gray-900 rounded-lg focus:ring-2 focus:ring-gray-300 p-1.5 hover:bg-gray-100 inline-flex h-8 w-8 transition-colors" onclick="this.parentElement.remove()">
+                        <i class="ri-close-line"></i>
+                    </button>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- Main Content Area -->
+    <main class="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {% block content %}
         {% endblock %}
-    </div>
+    </main>
 
-    <footer class="flex flex-col md:flex-row justify-between item-center px-3 py-3 bg-green-600 text-white">
-        <aside class="flex justify-center space-x-2 md:space-x-6">
-            <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd" class="fill-current">
-            <path
-                d="M22.672 15.226l-2.432.811.841 2.515c.33 1.019-.209 2.127-1.23 2.456-1.15.325-2.148-.321-2.463-1.226l-.84-2.518-5.013 1.677.84 2.517c.391 1.203-.434 2.542-1.831 2.542-.88 0-1.601-.564-1.86-1.314l-.842-2.516-2.431.809c-1.135.328-2.145-.317-2.463-1.229-.329-1.018.211-2.127 1.231-2.456l2.432-.809-1.621-4.823-2.432.808c-1.355.384-2.558-.59-2.558-1.839 0-.817.509-1.582 1.327-1.846l2.433-.809-.842-2.515c-.33-1.02.211-2.129 1.232-2.458 1.02-.329 2.13.209 2.461 1.229l.842 2.515 5.011-1.677-.839-2.517c-.403-1.238.484-2.553 1.843-2.553.819 0 1.585.509 1.85 1.326l.841 2.517 2.431-.81c1.02-.33 2.131.211 2.461 1.229.332 1.018-.21 2.126-1.23 2.456l-2.433.809 1.622 4.823 2.433-.809c1.242-.401 2.557.484 2.557 1.838 0 .819-.51 1.583-1.328 1.847m-8.992-6.428l-5.01 1.675 1.619 4.828 5.011-1.674-1.62-4.829z"></path>
-            </svg>
-            <p>Copyright ©2025 - All right reserved</p>
-        </aside>
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-100 mt-auto relative overflow-hidden">
+        <!-- Decorative background elements -->
+        <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-green-400 via-blue-500 to-purple-500"></div>
+        <div class="absolute -top-24 -left-24 w-64 h-64 bg-green-100 rounded-full mix-blend-multiply filter blur-3xl opacity-30"></div>
+        <div class="absolute -bottom-24 -right-24 w-64 h-64 bg-blue-100 rounded-full mix-blend-multiply filter blur-3xl opacity-30"></div>
 
-        <div class="flex justify-center space-x-3">
-            <a href="#">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" class="fill-current">
-                    <path
-                    d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"></path>
-                </svg>
-            </a>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 relative z-10">
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-12">
+                <!-- Brand Column -->
+                <div class="md:col-span-5 space-y-6">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-gradient-to-br from-green-600 to-green-500 rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-green-500/20">
+                            N
+                        </div>
+                        <span class="font-heading text-2xl font-bold tracking-tight text-gray-900">NACOS<span class="text-green-600">BLOG</span></span>
+                    </div>
+                    <p class="text-gray-500 leading-relaxed max-w-sm">
+                        Empowering students and tech enthusiasts to share knowledge, discover insights, and grow together in a vibrant community.
+                    </p>
+                    <div class="flex gap-4 pt-2">
+                        <a href="#" class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-500 hover:bg-blue-500 hover:text-white transition-all duration-300 hover:-translate-y-1 shadow-sm hover:shadow-lg hover:shadow-blue-500/30">
+                            <i class="ri-twitter-x-fill"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-500 hover:bg-blue-600 hover:text-white transition-all duration-300 hover:-translate-y-1 shadow-sm hover:shadow-lg hover:shadow-blue-600/30">
+                            <i class="ri-facebook-fill"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-500 hover:bg-pink-600 hover:text-white transition-all duration-300 hover:-translate-y-1 shadow-sm hover:shadow-lg hover:shadow-pink-600/30">
+                            <i class="ri-instagram-line"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-500 hover:bg-blue-700 hover:text-white transition-all duration-300 hover:-translate-y-1 shadow-sm hover:shadow-lg hover:shadow-blue-700/30">
+                            <i class="ri-linkedin-fill"></i>
+                        </a>
+                    </div>
+                </div>
 
-            <a href="">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" class="fill-current">
-                    <path
-                    d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"></path>
-                </svg>
-            </a>
+                <!-- Quick Links -->
+                <div class="md:col-span-3">
+                    <h3 class="font-heading font-bold text-gray-900 text-lg mb-6">Quick Links</h3>
+                    <ul class="space-y-4">
+                        <li><a href="{% url 'blog:post_list' %}" class="text-gray-500 hover:text-green-600 transition-colors flex items-center gap-2 group"><span class="w-1.5 h-1.5 rounded-full bg-gray-300 group-hover:bg-green-500 transition-colors"></span> Home</a></li>
+                        <li><a href="#" class="text-gray-500 hover:text-green-600 transition-colors flex items-center gap-2 group"><span class="w-1.5 h-1.5 rounded-full bg-gray-300 group-hover:bg-green-500 transition-colors"></span> About Us</a></li>
+                        <li><a href="#" class="text-gray-500 hover:text-green-600 transition-colors flex items-center gap-2 group"><span class="w-1.5 h-1.5 rounded-full bg-gray-300 group-hover:bg-green-500 transition-colors"></span> Contact</a></li>
+                        <li><a href="#" class="text-gray-500 hover:text-green-600 transition-colors flex items-center gap-2 group"><span class="w-1.5 h-1.5 rounded-full bg-gray-300 group-hover:bg-green-500 transition-colors"></span> Privacy Policy</a></li>
+                    </ul>
+                </div>
 
-            <a href="#">
-                <svg  xmlns="http://www.w3.org/2000/svg"    width="24"  height="24"   viewBox="0 0 24 24"    class="fill-current">
-                    <path
-                    d="M9 8h-3v4h3v12h5v-12h3.642l.358-4h-4v-1.667c0-.955.192-1.333 1.115-1.333h2.885v-5h-3.808c-3.596 0-5.192 1.583-5.192 4.615v3.385z"></path>
-                </svg>
-            </a>
+                <!-- Newsletter (Static for now) -->
+                <div class="md:col-span-4">
+                    <h3 class="font-heading font-bold text-gray-900 text-lg mb-6">Stay Updated</h3>
+                    <p class="text-gray-500 mb-4 text-sm">Subscribe to our newsletter for the latest tech insights and community updates.</p>
+                    <form action="#" class="space-y-3">
+                        <div class="relative">
+                            <input type="email" placeholder="Enter your email" class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:border-green-500 focus:ring-2 focus:ring-green-200 outline-none transition-all text-sm">
+                            <button type="button" class="absolute right-2 top-2 p-1.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors shadow-md shadow-green-600/20">
+                                <i class="ri-arrow-right-line"></i>
+                            </button>
+                        </div>
+                        <p class="text-xs text-gray-400">We respect your privacy. Unsubscribe at any time.</p>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-100 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+                <p class="text-sm text-gray-500">&copy; 2025 NACOS Blog. All rights reserved.</p>
+                <div class="flex gap-6 text-sm text-gray-500">
+                    <a href="#" class="hover:text-gray-900 transition-colors">Terms</a>
+                    <a href="#" class="hover:text-gray-900 transition-colors">Privacy</a>
+                    <a href="#" class="hover:text-gray-900 transition-colors">Cookies</a>
+                </div>
+            </div>
         </div>
     </footer>
 
-
-
-<!-- javascript for copy link in share.html -->
+    <!-- Javascript -->
     <script>
-        function copyToClipboard() {
-          const linkInput = document.getElementById("copy-link");
-          const message = document.getElementById("copy-message");
-          linkInput.select();
-          linkInput.setSelectionRange(0, 99999); // For mobile
-          document.execCommand("copy");
-      
-          message.classList.remove("hidden");
-          setTimeout(() => message.classList.add("hidden"), 2000);
+        // Mobile Menu Logic
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const closeMobileMenuBtn = document.getElementById('close-mobile-menu');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const mobileMenuOverlay = document.getElementById('mobile-menu-overlay');
+        const body = document.body;
+
+        function toggleMenu() {
+            const isHidden = mobileMenu.classList.contains('translate-x-full');
+            
+            if (isHidden) {
+                // Open menu
+                mobileMenu.classList.remove('translate-x-full');
+                mobileMenuOverlay.classList.remove('hidden');
+                setTimeout(() => mobileMenuOverlay.classList.remove('opacity-0'), 10);
+                body.style.overflow = 'hidden';
+            } else {
+                // Close menu
+                mobileMenu.classList.add('translate-x-full');
+                mobileMenuOverlay.classList.add('opacity-0');
+                setTimeout(() => mobileMenuOverlay.classList.add('hidden'), 300);
+                body.style.overflow = '';
+            }
         }
+
+        if (mobileMenuBtn) mobileMenuBtn.addEventListener('click', toggleMenu);
+        if (closeMobileMenuBtn) closeMobileMenuBtn.addEventListener('click', toggleMenu);
+        if (mobileMenuOverlay) mobileMenuOverlay.addEventListener('click', toggleMenu);
+
+        // Navbar Scroll Effect
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 10) {
+                navbar.classList.add('shadow-md');
+                navbar.classList.replace('bg-white/85', 'bg-white/95');
+            } else {
+                navbar.classList.remove('shadow-md');
+                navbar.classList.replace('bg-white/95', 'bg-white/85');
+            }
+        });
+
+        // Auto-dismiss toasts
+        setTimeout(() => {
+            const toasts = document.querySelectorAll('.animate-slide-in-right');
+            toasts.forEach(toast => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(100%)';
+                setTimeout(() => toast.remove(), 400);
+            });
+        }, 5000);
     </script>
       
 </body>

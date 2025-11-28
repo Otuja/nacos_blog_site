@@ -1,26 +1,25 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css" />
-</head>
-<body>
+<div class="flex items-center justify-center gap-2">
+    {% if page.has_previous %}
+        <a href="?page={{ page.previous_page_number }}" class="px-4 py-2 bg-white border border-gray-200 rounded-lg text-gray-700 hover:bg-gray-50 hover:text-green-600 transition-colors shadow-sm font-medium flex items-center gap-1">
+            <i class="ri-arrow-left-s-line"></i> Previous
+        </a>
+    {% else %}
+        <span class="px-4 py-2 bg-gray-50 border border-gray-100 rounded-lg text-gray-400 cursor-not-allowed font-medium flex items-center gap-1">
+            <i class="ri-arrow-left-s-line"></i> Previous
+        </span>
+    {% endif %}
 
-    <div class="flex item-center justify-center">
-        <div class="flex gap-4">
-            {% if page.has_previous %}
-                <a href="?page={{ page.previous_page_number }}" class="btn btn-dash">Previous</a>
-            {% endif %}
+    <span class="px-4 py-2 bg-green-50 border border-green-100 text-green-700 rounded-lg font-bold shadow-sm">
+        Page {{ page.number }} of {{ page.paginator.num_pages }}
+    </span>
 
-            <span class="btn btn-soft btn-dash"> Page {{ page.number }} </span>
-
-            {% if page.has_next %}
-                <a href="?page={{ page.next_page_number }}" class="btn btn-dash">Next</a>
-            {% endif %}
-        </div>
-
-    </div>
-</body>
-</html>
+    {% if page.has_next %}
+        <a href="?page={{ page.next_page_number }}" class="px-4 py-2 bg-white border border-gray-200 rounded-lg text-gray-700 hover:bg-gray-50 hover:text-green-600 transition-colors shadow-sm font-medium flex items-center gap-1">
+            Next <i class="ri-arrow-right-s-line"></i>
+        </a>
+    {% else %}
+        <span class="px-4 py-2 bg-gray-50 border border-gray-100 rounded-lg text-gray-400 cursor-not-allowed font-medium flex items-center gap-1">
+            Next <i class="ri-arrow-right-s-line"></i>
+        </span>
+    {% endif %}
+</div>

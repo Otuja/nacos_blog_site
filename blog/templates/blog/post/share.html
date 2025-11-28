@@ -1,67 +1,123 @@
 {% extends 'blog/base.html' %}
 {% load widget_tweaks %}
 
+{% block title %}Share "{{ post.title }}"{% endblock %}
+
 {% block content %}
-    <div class="flex justify-center items-center rounded-2xl border border-gray-100 shadow-2xl">
-        <div class="flex-1 p-5">
+    <div class="max-w-2xl mx-auto">
+        <div class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
             {% if sent %}
-                <h1>E-mail sucessfully sent </h1>
-                <P>'{{ post.title }}' was successfully sent to {{ form.cleaned_data.to }}.</P>
+                <div class="p-12 text-center">
+                    <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6 text-green-600">
+                        <i class="ri-mail-check-line text-4xl"></i>
+                    </div>
+                    <h2 class="text-3xl font-bold text-gray-900 mb-4">Email Sent Successfully!</h2>
+                    <p class="text-gray-600 text-lg mb-8">
+                        "{{ post.title }}" has been shared with <span class="font-semibold text-gray-900">{{ form.cleaned_data.to }}</span>.
+                    </p>
+                    <a href="{{ post.get_absolute_url }}" class="inline-flex items-center gap-2 px-6 py-3 bg-green-600 text-white font-medium rounded-xl hover:bg-green-700 transition-colors shadow-lg shadow-green-600/20">
+                        <i class="ri-arrow-left-line"></i> Back to Article
+                    </a>
+                </div>
             {% else %}
-    
-                <h1 class="font-semibold">Share <span class="text-blue-600 underline">'{{ post.title }}'</span> by e-mail</h1>
-                <form method="post">
-                    {% csrf_token %}
-                        <div class="flex flex-col space-y-2">
-                            <div>
-                                <label for="{{ form.name.id_for_label }}">Name:</label>
-                                {{ form.name|add_class:"border p-2 rounded w-full" }}
-                            </div>
-                            <div>
-                                <label for="{{ form.email.id_for_label }}">Email:</label>
-                                {{ form.email|add_class:"border p-2 rounded w-full" }}
-                            </div>
-                            <div>
-                                <label for="{{ form.body.id_for_label }}">To:</label>
-                                {{ form.to|add_class:"border p-2 rounded w-full" }}
-                            </div>
-                            <div>
-                                <label for="{{ form.body.id_for_label }}">Comment:</label>
-                                {{ form.comments|add_class:"border p-2 rounded w-full" }}
+                <div class="bg-gray-50 px-8 py-6 border-b border-gray-100">
+                    <h2 class="text-2xl font-bold text-gray-900">Share Article</h2>
+                    <p class="text-sm text-gray-500 mt-1">Spread the word about "<span class="font-medium text-gray-900">{{ post.title }}</span>"</p>
+                </div>
+
+                <div class="p-8 space-y-8">
+                    <!-- Social Share Buttons -->
+                    <div>
+                        <h3 class="text-sm font-bold text-gray-900 uppercase tracking-wider mb-4">Share on Social Media</h3>
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                            <a href="https://twitter.com/intent/tweet?url={{ post_url|urlencode }}&text={{ post.title|urlencode }}" target="_blank" class="flex flex-col items-center justify-center p-4 rounded-xl bg-gray-50 hover:bg-black hover:text-white transition-all group border border-gray-100">
+                                <i class="ri-twitter-x-line text-2xl mb-2 group-hover:scale-110 transition-transform"></i>
+                                <span class="text-xs font-medium">X (Twitter)</span>
+                            </a>
+                            <a href="https://www.facebook.com/sharer/sharer.php?u={{ post_url|urlencode }}" target="_blank" class="flex flex-col items-center justify-center p-4 rounded-xl bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white transition-all group border border-blue-100">
+                                <i class="ri-facebook-circle-fill text-2xl mb-2 group-hover:scale-110 transition-transform"></i>
+                                <span class="text-xs font-medium">Facebook</span>
+                            </a>
+                            <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ post_url|urlencode }}" target="_blank" class="flex flex-col items-center justify-center p-4 rounded-xl bg-blue-50 text-blue-700 hover:bg-blue-700 hover:text-white transition-all group border border-blue-100">
+                                <i class="ri-linkedin-fill text-2xl mb-2 group-hover:scale-110 transition-transform"></i>
+                                <span class="text-xs font-medium">LinkedIn</span>
+                            </a>
+                            <a href="https://api.whatsapp.com/send?text={{ post.title|urlencode }}%20{{ post_url|urlencode }}" target="_blank" class="flex flex-col items-center justify-center p-4 rounded-xl bg-green-50 text-green-600 hover:bg-green-600 hover:text-white transition-all group border border-green-100">
+                                <i class="ri-whatsapp-line text-2xl mb-2 group-hover:scale-110 transition-transform"></i>
+                                <span class="text-xs font-medium">WhatsApp</span>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Copy Link -->
+                    <div>
+                        <h3 class="text-sm font-bold text-gray-900 uppercase tracking-wider mb-4">Copy Link</h3>
+                        <div class="relative flex items-center">
+                            <input id="copy-link" type="text" value="{{ post_url }}" class="w-full pl-4 pr-12 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-600 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:bg-white transition-colors" readonly>
+                            <button onclick="copyToClipboard()" class="absolute right-2 p-2 bg-white rounded-lg text-gray-500 hover:text-green-600 hover:bg-green-50 transition-colors shadow-sm border border-gray-100" title="Copy to clipboard">
+                                <i class="ri-file-copy-line text-lg"></i>
+                            </button>
+                            <div id="copy-toast" class="absolute top-full left-1/2 -translate-x-1/2 mt-2 px-3 py-1 bg-gray-900 text-white text-xs rounded-md opacity-0 transition-opacity duration-300 pointer-events-none">
+                                Copied!
                             </div>
                         </div>
-                    <button type="submit" class="bg-green-600 text-white py-2 px-4 mt-2 rounded">Send</button>
-                </form>
-    
-                <div class="mt-4">
-                    <label for="copy-link" class="font-bold">Copy Link:</label>
-                    <div class="flex items-center space-x-2">
-                        <input id="copy-link" type="text" value="{{ post_url }}" class="border p-2 rounded w-full" readonly>
-                        <button onclick="copyToClipboard()" class="bg-gray-200 p-2 rounded hover:bg-gray-300" title="Copy to clipboard">
-                        <i class="ri-file-copy-line text-xl"></i>
+                    </div>
+
+                    <div class="relative">
+                        <div class="absolute inset-0 flex items-center">
+                            <div class="w-full border-t border-gray-200"></div>
+                        </div>
+                        <div class="relative flex justify-center text-sm">
+                            <span class="px-2 bg-white text-gray-500">Or send via email</span>
+                        </div>
+                    </div>
+
+                    <!-- Email Form -->
+                    <form method="post" class="space-y-5">
+                        {% csrf_token %}
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                            <div>
+                                <label for="{{ form.name.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Your Name</label>
+                                {{ form.name|add_class:"appearance-none rounded-xl relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm transition-colors" }}
+                            </div>
+                            <div>
+                                <label for="{{ form.email.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Your Email</label>
+                                {{ form.email|add_class:"appearance-none rounded-xl relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm transition-colors" }}
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="{{ form.to.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Recipient's Email</label>
+                            {{ form.to|add_class:"appearance-none rounded-xl relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm transition-colors" }}
+                        </div>
+
+                        <div>
+                            <label for="{{ form.comments.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Add a Note (Optional)</label>
+                            {{ form.comments|add_class:"appearance-none rounded-xl relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm transition-colors h-24 resize-none" }}
+                        </div>
+
+                        <button type="submit" class="w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-xl text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all shadow-lg shadow-green-600/30 hover:shadow-green-600/40">
+                            <i class="ri-send-plane-fill mr-2"></i> Send Email
                         </button>
-                    </div>
-                    <p id="copy-message" class="text-green-600 text-sm mt-1 hidden">Link copied!</p>
+                    </form>
                 </div>
-
-                <div>
-                    <p class="font-bold">Or share it on:</p>
-                    <div class="flex gap-1">
-                        <a href="https://www.facebook.com/sharer/sharer.php?u={{ post_url|urlencode }}" target="_blank">
-                        <i class="ri-facebook-circle-fill text-3xl text-blue-600"></i>
-                        </a>
-
-                        <a href="https://twitter.com/intent/tweet?url={{ post_url|urlencode }}" target="_blank">
-                        <i class="ri-twitter-x-line text-3xl"></i>
-                        </a>
-
-                        <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ post_url|urlencode }}" target="_blank">
-                        <i class="ri-linkedin-box-fill text-3xl text-blue-600"></i>
-                        </a>
-                    </div>
-                </div>
-    
             {% endif %}
-        </div>    
+        </div>
     </div>
+
+    <script>
+        function copyToClipboard() {
+            var copyText = document.getElementById("copy-link");
+            copyText.select();
+            copyText.setSelectionRange(0, 99999); // For mobile devices
+            navigator.clipboard.writeText(copyText.value).then(function() {
+                var toast = document.getElementById("copy-toast");
+                toast.classList.remove("opacity-0");
+                setTimeout(function(){ 
+                    toast.classList.add("opacity-0");
+                }, 2000);
+            });
+        }
+    </script>
 {% endblock %}

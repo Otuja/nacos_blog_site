@@ -4,47 +4,85 @@ A simple, modern Django-based blog platform designed for content creation, shari
 
 ## 🚀 Features
 
-- 🧾 Create, edit, and delete blog posts
-- 🏷️ Tag posts using `django-taggit`
-- 📬 Comment on posts
-- 🕵️‍♂️ Admin interface for post management
-- 💌 Email notifications (via Gmail SMTP)
-- 🔁 Live reload with `django-browser-reload`
-- 📁 Image/media uploads
-- 🔐 Secure CSRF and host settings
-- 🗃️ PostgreSQL-ready for deployment on Render
+- **Modern UI/UX**: Built with pure Tailwind CSS for a clean, responsive, and professional design.
+- **Blog Management**: Create, edit, and delete blog posts with a rich text editor experience.
+- **Tagging System**: Organize posts using tags for easy filtering and discovery.
+- **Comments**: Engage with readers through a built-in commenting system.
+- **Reading Time**: Automatically calculates and displays the estimated reading time for each post.
+- **Social Sharing**: Share posts easily via Email, Twitter, Facebook, LinkedIn, and WhatsApp.
+- **User Authentication**: Secure login and signup system for authors.
+- **Profile Page**: Manage your posts and view your publishing history.
+- **Search**: Find articles quickly with a built-in search feature.
 
 ## 🛠️ Tech Stack
 
-- Python 3.12
-- Django 5.2
-- SQLite (development) / PostgreSQL (production)
-- HTML, CSS (with `widget-tweaks`)
-- Taggit for tagging
-- Gmail SMTP for email functionality
+- **Backend**: Python 3.12, Django 5.2
+- **Frontend**: HTML5, Tailwind CSS (Pure), Remix Icons, Google Fonts (Inter)
+- **Database**: SQLite (Development) / PostgreSQL (Production ready)
+- **Utilities**: 
+  - `django-taggit` for tagging
+  - `django-widget-tweaks` for form styling
+  - `django-browser-reload` for development
 
 ## 📦 Installation
 
-```bash
-git clone https://github.com/Otuja/nacos_blog_site.git
-cd nacos_blog_site
-python -m venv env
-source env/bin/activate  # On Windows use `env\Scripts\activate`
-pip install -r requirements.txt
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/Otuja/nacos_blog_site.git
+   cd nacos_blog_site
+   ```
 
+2. **Create and activate a virtual environment:**
+   ```bash
+   python -m venv env
+   # On Windows
+   env\Scripts\activate
+   # On macOS/Linux
+   source env/bin/activate
+   ```
 
-## 🔐 Environment Variables
-Create a .env file in the root directory and add the following:
+3. **Install dependencies:**
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-SECRET_KEY=your_django_secret_key
-DEBUG=True
-EMAIL_HOST_USER=your_email@gmail.com
-EMAIL_HOST_PASSWORD=your_app_password
-💡 You can generate EMAIL_HOST_PASSWORD as an App Password from your Gmail account settings (if 2FA is enabled).
+4. **Set up environment variables:**
+   Create a `.env` file in the root directory and add your configuration (see `.env.example` if available, or use standard Django settings).
 
-## 🏃‍♂️ Running the Project
+5. **Run migrations:**
+   ```bash
+   python manage.py migrate
+   ```
 
-python manage.py migrate
-python manage.py createsuperuser
-python manage.py runserver
-Access the site at http://127.0.0.1:8000
+6. **Create a superuser (optional):**
+   ```bash
+   python manage.py createsuperuser
+   ```
+
+7. **Run the development server:**
+   ```bash
+   python manage.py runserver
+   ```
+
+8. **Access the application:**
+   Open your browser and navigate to `http://127.0.0.1:8000`.
+
+## 📂 Project Structure
+
+- `blog/`: Main application directory.
+  - `models.py`: Database models (Post, Comment).
+  - `views.py`: View logic for handling requests.
+  - `forms.py`: Form definitions.
+  - `templates/`: HTML templates.
+  - `urls.py`: URL routing.
+- `config/`: Project configuration settings.
+- `static/`: Static files (CSS, JS, images).
+- `media/`: User-uploaded media files.
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## 📄 License
+
+This project is open source and available under the [MIT License](LICENSE).
